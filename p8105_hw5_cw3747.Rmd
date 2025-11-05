@@ -113,7 +113,7 @@ simulate_mu <- function(mu, B = 5000, n = 30, sigma = 5) {
 }
 ```
 
-### for different mu
+### for different $\mu$
 ```{r}
 mus <- 0:6
 res_list <- vector("list", length(mus))
@@ -123,4 +123,25 @@ for (i in seq_along(mus)) {
 res <- bind_rows(res_list)
 ```
 
+### power of test
+```{r}
+summ <- res |>
+  group_by(mu) |>
+  summarise(
+    power = mean(reject),
+    avg_mu_hat_all = mean(mu_hat),
+    avg_mu_hat_rej = mean(mu_hat[reject]),
+    .groups = "drop"
+  )
+
+ggplot(summ, aes(mu, power)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 1.6) +
+  geom_hline(yintercept = 0.05, linetype = 2) +
+  labs(title = "Power of t-test",
+       x = "True mean (μ)", y = "Power") +
+  theme_minimal(base_size = 12)
+```
+
+We fix $\mu_0 = 0$ and $\sigma = 5$. The effect size is $d = (\mu - \mu_0) / \sigma$. Hence, larger $\mu$ implies a larger effect size. The plot shows that power increases monotonically with $\mu$: at $\mu$ = 0, the the rejection rate is about the rejection rate is about $\alpha$ = 0.05; as $\mu$ grows, power rises quickly. Larger effect size makes the sample mean more distinct from 0, yielding a larger absolute t-statistic and a higher chance of rejecting the null.
 
