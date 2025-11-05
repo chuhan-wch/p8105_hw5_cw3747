@@ -67,3 +67,20 @@ df_loop <- data.frame(n = ns, p = probs)
 n50_loop <- min(df_loop$n[df_loop$p >= 0.5])
 ```
 
+### ggplot
+```{r}
+ggplot(df_loop, aes(n, p)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 1.5) +
+  geom_hline(yintercept = 0.5, linetype = 2) +
+  geom_vline(xintercept = n50_loop, linetype = 2) +
+  annotate("text", x = n50_loop + 1, y = 0.52,
+           label = paste0("~50% at n = ", n50_loop), hjust = 0) +
+  labs(title = "P(at least one shared birthday) vs. Group size",
+       x = "Group size (n)", y = "Probability") +
+  theme_minimal(base_size = 12)
+```
+
+The plot shows that the probability of at least one shared birthday increases rapidly with group size. Around n = 23, the probability reaches about 0.5, meaning that in a random group of 23 people there is 50% chance that some pair shares a birthday (this does not mean that “half of the people” have a match). As n approaches 50, the probability nears 1, implying that a shared-birthday pair is almost guaranteed, though not that everyone finds a match. Real-world seasonality and clustering can shift the curve slightly, but the qualitative “birthday paradox” pattern remains.
+
+
