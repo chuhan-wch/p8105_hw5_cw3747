@@ -33,7 +33,9 @@ scale_colour_discrete = scale_colour_viridis_d
 scale_fill_discrete = scale_fill_viridis_d
 ```
 
-## Birthday Function
+## Problem1
+
+### Birthday Function
 ```{r}
 library(ggplot2)
 library(dplyr)
@@ -82,5 +84,43 @@ ggplot(df_loop, aes(n, p)) +
 ```
 
 The plot shows that the probability of at least one shared birthday increases rapidly with group size. Around n = 23, the probability reaches about 0.5, meaning that in a random group of 23 people there is 50% chance that some pair shares a birthday (this does not mean that “half of the people” have a match). As n approaches 50, the probability nears 1, implying that a shared-birthday pair is almost guaranteed, though not that everyone finds a match. Real-world seasonality and clustering can shift the curve slightly, but the qualitative “birthday paradox” pattern remains.
+
+
+## Problem2
+
+### set function
+```{r}
+library(broom) 
+
+set.seed(123)
+
+sim_once <- function(mu, n = 30, sigma = 5) {
+  x  <- rnorm(n, mean = mu, sd = sigma)
+  tt <- t.test(x, mu = 0)
+  tibble(
+    mu = mu,
+    mu_hat = mean(x),
+    p = tidy(tt)$p.value,
+    reject = p < 0.05
+  )
+}
+```
+
+### iteration
+```{r}
+simulate_mu <- function(mu, B = 5000, n = 30, sigma = 5) {
+  bind_rows(replicate(B, sim_once(mu, n, sigma), simplify = FALSE))
+}
+```
+
+### for different mu
+```{r}
+mus <- 0:6
+res_list <- vector("list", length(mus))
+for (i in seq_along(mus)) {
+  res_list[[i]] <- simulate_mu(mus[i], B = 5000)
+}
+res <- bind_rows(res_list)
+```
 
 
