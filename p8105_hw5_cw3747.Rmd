@@ -145,3 +145,20 @@ ggplot(summ, aes(mu, power)) +
 
 We fix $\mu_0 = 0$ and $\sigma = 5$. The effect size is $d = (\mu - \mu_0) / \sigma$. Hence, larger $\mu$ implies a larger effect size. The plot shows that power increases monotonically with $\mu$: at $\mu$ = 0, the the rejection rate is about the rejection rate is about $\alpha$ = 0.05; as $\mu$ grows, power rises quickly. Larger effect size makes the sample mean more distinct from 0, yielding a larger absolute t-statistic and a higher chance of rejecting the null.
 
+### average estimate
+```{r}
+summ_long <- summ |>
+  pivot_longer(-mu, names_to = "metric", values_to = "value") |>
+  filter(metric %in% c("avg_mu_hat_all","avg_mu_hat_rej"))
+
+ggplot(summ_long, aes(mu, value, color = metric)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 1.6) +
+  geom_abline(slope = 1, intercept = 0, linetype = 3) +
+  scale_color_discrete(labels = c("Overall E[μ̂]", "E[μ̂ | reject]")) +
+  labs(title = "Average estimate of μ̂ vs true μ",
+       x = "True mean (μ)", y = "Average μ̂", color = "") +
+  theme_minimal(base_size = 12)
+```
+
+The sample average of $\hat{\mu}$ among tests that reject $H_0$ is not approximately equal to the true $\mu$. We can see from the plot, when the $\mu$ is around 1, conditioning on significance selects extreme estimates, so the $\hat{\mu}$ shifted away from 0. It's like a form of selection bias. Only when the power is very high so that almost all samples reject $H_0$, $\mu$ and $\hat{\mu}$ are close.
