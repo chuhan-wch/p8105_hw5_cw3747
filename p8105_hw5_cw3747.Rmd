@@ -1,0 +1,69 @@
+---
+title: "p8105_hw5_cw3747"
+author: "chuhan wang_cw3747"
+date: "2025-11-04"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(patchwork)
+library(scales)
+library(dplyr)
+
+
+knitr::opts_chunk$set(
+  fig.width = 6,
+  fig.asp = .6,
+  out.width = "90%"
+)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+```
+
+## Birthday Function
+```{r}
+library(ggplot2)
+library(dplyr)
+
+set.seed(123)
+
+
+birthday_dup <- function(n, days = 365) {
+  bdays <- sample.int(days, n, replace = TRUE) 
+  any(duplicated(bdays))                       
+}
+```
+
+
+### iteration
+```{r}
+simulate_prob <- function(n, B = 10000, days = 365) {
+  mean(replicate(B, birthday_dup(n, days)))
+}
+
+ns <- 2:50
+B  <- 10000
+
+probs <- numeric(length(ns))
+for (i in seq_along(ns)) {
+  probs[i] <- simulate_prob(ns[i], B = B)
+}
+
+df_loop <- data.frame(n = ns, p = probs)
+
+n50_loop <- min(df_loop$n[df_loop$p >= 0.5])
+```
+
