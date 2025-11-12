@@ -233,3 +233,27 @@ top_uns <- city_summary |> slice_max(unsolved_homicides, n = 1)
 
 There are `r nrow(city_summary)` cities in the dataset. Overall, we observe `r overall$total` homicides, of which `r overall$unsolved` (`r scales::percent(overall$pct, 0.1)`) are unsolved.
 The city with the most homicides is `r top_tot$city_state` (`r top_tot$total_homicides` cases), and it also has `r top_tot$unsolved_homicides` unsolved cases (`r scales::percent(top_tot$pct_unsolved, 0.1)`).
+
+### prop test fot bal
+```{r}
+library(broom)
+
+balt_row <- city_summary %>% 
+  filter(city_state == "Baltimore, MD") %>%
+  select(x = unsolved_homicides, n = total_homicides)
+
+
+balt_row
+
+pt_balt <- prop.test(pull(balt_row, x), pull(balt_row, n))  #save the output of prop.test as an R object
+
+balt_res <- tidy(pt_balt) |>
+  select(p_hat = estimate, conf_low = conf.low, conf_high = conf.high)
+
+balt_res
+
+p_hat <- balt_res$p_hat; ci_lo <- balt_res$conf_low; ci_hi <- balt_res$conf_high
+```
+
+In Baltimore, MD, the estimated proportion of unsolved homicides is `r scales::percent(p_hat, 0.1)`, 95% CI `r scales::percent(ci_lo, 0.1)`–`r scales::percent(ci_hi, 0.1)`.
+
