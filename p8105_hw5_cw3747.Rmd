@@ -198,3 +198,38 @@ top_cities <- homicide |>
 The raw homicide dataset contains `r n_rows` observations and `r n_cols` variables collected from `r n_cities` cities across `r n_states` states.
 The data span from `r date_min` to `r date_max`. And treating “Closed without arrest” and “Open/No arrest” as unsolved, there are `r n_unsolved` unsolved cases of all records.
 Cities with the most cases include `r top_cities$city_state[1]` (`r top_cities$n[1]`), `r top_cities$city_state[2]` (`r top_cities$n[2]`), and `r top_cities$city_state[3]` (`r top_cities$n[3]`).
+
+### city state
+```{r}
+library(stringr)
+
+city_summary <- homicide |>
+  mutate(
+    city_state = str_c(city, ", ", state),
+    unsolved = disposition %in% c("Closed without arrest", "Open/No arrest")
+  ) |>
+  group_by(city_state) |>
+  summarise(
+    total_homicides    = n(),
+    unsolved_homicides = sum(unsolved, na.rm = TRUE),
+    solved_homicides   = total_homicides - unsolved_homicides,
+    pct_unsolved       = unsolved_homicides / total_homicides
+  ) |>
+  arrange(desc(total_homicides))
+```
+
+```{r}
+overall <- homicide |>
+  mutate(unsolved = disposition %in% c("Closed without arrest","Open/No arrest")) |>
+  summarise(
+    total = n(),
+    unsolved = sum(unsolved, na.rm = TRUE),
+    pct = unsolved / total
+  )
+
+top_tot <- city_summary |> slice_max(total_homicides, n = 1)
+top_uns <- city_summary |> slice_max(unsolved_homicides, n = 1)
+```
+
+There are `r nrow(city_summary)` cities in the dataset. Overall, we observe `r overall$total` homicides, of which `r overall$unsolved` (`r scales::percent(overall$pct, 0.1)`) are unsolved.
+The city with the most homicides is `r top_tot$city_state` (`r top_tot$total_homicides` cases), and it also has `r top_tot$unsolved_homicides` unsolved cases (`r scales::percent(top_tot$pct_unsolved, 0.1)`).
