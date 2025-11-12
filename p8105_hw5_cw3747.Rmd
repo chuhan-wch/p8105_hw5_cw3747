@@ -296,7 +296,7 @@ knitr::kable(
 
 ### plot fot all
 
-```{r}
+```{r, fig.width=8, fig.height=18}
 library(ggplot2)
 library(forcats)
 library(scales)
