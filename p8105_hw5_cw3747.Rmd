@@ -162,3 +162,39 @@ ggplot(summ_long, aes(mu, value, color = metric)) +
 ```
 
 The sample average of $\hat{\mu}$ among tests that reject $H_0$ is not approximately equal to the true $\mu$. We can see from the plot, when the $\mu$ is around 1, conditioning on significance selects extreme estimates, so the $\hat{\mu}$ shifted away from 0. It's like a form of selection bias. Only when the power is very high so that almost all samples reject $H_0$, $\mu$ and $\hat{\mu}$ are close.
+
+## Problem3
+
+### data import
+```{r}
+homicide = read_csv("./homicide-data.csv") |>
+  janitor::clean_names() |>
+  mutate(reported_date = ymd(reported_date))
+```
+
+### describe
+```{r}
+glimpse(homicide)
+count(homicide, disposition, sort = TRUE)
+count(homicide, city, state, sort = TRUE) |> head(10)
+
+n_rows   <- nrow(homicide)
+n_cols   <- ncol(homicide)
+n_cities <- dplyr::n_distinct(homicide$city)
+n_states <- dplyr::n_distinct(homicide$state)
+
+date_min <- suppressWarnings(min(homicide$reported_date, na.rm = TRUE))
+date_max <- suppressWarnings(max(homicide$reported_date, na.rm = TRUE))
+
+unsolved_flag <- homicide$disposition %in% c("Closed without arrest","Open/No arrest")
+n_unsolved    <- sum(unsolved_flag, na.rm = TRUE)
+
+top_cities <- homicide |>
+  count(city, state, sort = TRUE) |>
+  mutate(city_state = paste0(city, ", ", state)) |>
+  slice_head(n = 5)
+```
+
+The raw homicide dataset contains `r n_rows` observations and `r n_cols` variables collected from `r n_cities` cities across `r n_states` states.
+The data span from `r date_min` to `r date_max`. And treating “Closed without arrest” and “Open/No arrest” as unsolved, there are `r n_unsolved` unsolved cases of all records.
+Cities with the most cases include `r top_cities$city_state[1]` (`r top_cities$n[1]`), `r top_cities$city_state[2]` (`r top_cities$n[2]`), and `r top_cities$city_state[3]` (`r top_cities$n[3]`).
