@@ -257,3 +257,39 @@ p_hat <- balt_res$p_hat; ci_lo <- balt_res$conf_low; ci_hi <- balt_res$conf_high
 
 In Baltimore, MD, the estimated proportion of unsolved homicides is `r scales::percent(p_hat, 0.1)`, 95% CI `r scales::percent(ci_lo, 0.1)`–`r scales::percent(ci_hi, 0.1)`.
 
+### prop test for all
+
+```{r}
+library(purrr)
+
+city_prop_all <- city_summary |>
+  transmute(
+    city_state,
+    x = unsolved_homicides,
+    n = total_homicides
+  ) |>
+  mutate(
+    pt_obj = map2(x, n, ~ prop.test(.x, .y))
+  ) |>
+  mutate(
+    pt_tidy = map(pt_obj, tidy)
+  ) |>
+  select(city_state, pt_tidy) |>
+  tidyr::unnest(pt_tidy) |>
+   transmute(
+    city_state,
+    p_hat    = estimate,
+    conf_low = conf.low,
+    conf_high= conf.high
+  )
+
+```
+
+```{r}
+library(knitr)
+
+knitr::kable(
+  city_prop_all |> dplyr::arrange(desc(p_hat)),
+  caption = "Estimated proportion of unsolved homicides and 95% CI by city"
+)
+```
